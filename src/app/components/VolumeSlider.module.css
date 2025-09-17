@@ -1,62 +1,46 @@
-/* GYÖKÉR – fix magasság, semmi padding/margin, középre igazítás */
 .sliderRoot {
   position: relative;
   display: flex;
-  align-items: center; /* NE nyúljon szét oldalra */
-  justify-content: center; /* középre a track */
-  height: 160px; /* slider teljes magasság */
+  align-items: center;
+  justify-content: center;
+  height: 160px;
   width: 20px;
   touch-action: none;
   user-select: none;
-  box-sizing: border-box; /* pixelpontos */
+  box-sizing: border-box;
 }
 
-/* TRACK – a teljes magasságot veszi át a gyökértől */
 .sliderTrack {
   position: relative;
-  height: 100%; /* <-- LÉNYEGES */
-  width: 6px; /* track vastagság */
-  background: #d9b9a7;
+  height: 100%;
+  width: 6px;
+  background-color: #d9b9a7;
   border-radius: 9999px;
   box-sizing: border-box;
 }
 
-/* RANGE – abszolút pozícionált, pontosan a tracken belül,
-   alulról töltsön, teljes szélességen */
 .sliderRange {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0; /* lentről nő felfelé */
+  bottom: 0;
   width: 100%;
-  background: #3b2b25;
-  border-radius: inherit; /* ugyanaz a görbület mint a track */
+  background-color: #3b2b25;
+  border-radius: inherit;
   box-sizing: border-box;
-  transform: translateZ(0); /* pixeltörés ellen */
+  transform: translateZ(0);
 }
 
-/* THUMB – kerek fogantyú; ne tolja el a layoutot */
 .sliderThumb {
   display: block;
   width: 14px;
   height: 14px;
-  background: #3b2b25;
+  background-color: #3b2b25;
   border-radius: 50%;
   cursor: grab;
   outline: none;
-  /* Safari/Chrome subpixel "ugrálás" ellen: */
   will-change: transform;
 }
 .sliderThumb:focus {
   box-shadow: 0 0 0 3px #ffd7c280;
-}
-
-/* Extra: ha biztosra akarsz menni, kezeld a Radix attributumokat is: */
-.sliderTrack[data-orientation="vertical"] {
-  width: 6px;
-  height: 100%;
-}
-.sliderRange[data-orientation="vertical"] {
-  width: 100%;
-  bottom: 0;
 }

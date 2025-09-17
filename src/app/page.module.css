@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
-    Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    Arial, "Noto Sans";
   background: linear-gradient(180deg, #ffd7c2 0%, #ffe6d6 50%, #fff2ea 100%);
 }
 
@@ -32,25 +32,40 @@
 .play {
   background: #3b2b25;
 }
-
 .mute {
   background: #c62828;
 }
-
 .unmute {
   background: #2e7d32;
+}
+.random {
+  background: #a66d5a;
+}
+.random:hover {
+  background: #8d5d4d;
 }
 
 .slidersRow {
   display: flex;
   gap: 32px;
-  flex-wrap: nowrap; /* soha ne törjön új sorba */
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: flex-end;
-  overflow-x: auto; /* ha nem fér ki, vízszintes görgetés */
+  overflow-x: auto;
   padding: 20px 10px;
   max-width: 90vw;
-  height: fit-content;
+}
+
+.sliderGroup {
+  text-align: center;
+}
+
+.categoryLabel {
+  font-size: 12px;
+  margin-bottom: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #5a463e;
 }
 
 .smallButton {
@@ -63,26 +78,10 @@
   color: #fff;
   cursor: pointer;
 }
-
 .smallButton:hover {
   background: #3b2b25;
 }
 
-.sliderGroup {
-  text-align: center;
-
-  min-height: fit-content;
-}
-
-.categoryLabel {
-  font-size: 12px;
-  margin-bottom: 12px;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: #5a463e;
-}
-
-/* Láthatatlan YouTube player */
 .hiddenPlayer {
   width: 0;
   height: 0;
