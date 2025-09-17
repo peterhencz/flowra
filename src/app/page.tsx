@@ -47,15 +47,15 @@ export default function Home() {
 
   // YouTube IFrame API betöltése + rejtett playerek létrehozása
   useEffect(() => {
-    const w = window as Window;
+    const w: Window = window;
 
-    function createPlayers() {
+    // Kapjon paraméterül egy biztosan létező YT-t
+    function createPlayers(YT: NonNullable<Window["YT"]>) {
       selected.forEach(({ idx, id }) => {
         const elId = `player-${idx}`;
         if (playersRef.current[idx]) return;
 
-        // @ts-expect-error: YT lehet, hogy még nincs definiálva a típus szerint ebben a pillanatban
-        playersRef.current[idx] = new w.YT.Player(elId, {
+        playersRef.current[idx] = new YT.Player(elId, {
           videoId: id,
           playerVars: {
             rel: 0,
@@ -76,9 +76,8 @@ export default function Home() {
     }
 
     // Ha már betöltődött az API
-    // @ts-expect-error: YT dinamikusan kerül a window-ra
-    if ((w as any).YT && (w as any).YT.Player) {
-      createPlayers();
+    if (w.YT?.Player) {
+      createPlayers(w.YT);
     } else {
       if (!document.getElementById("yt-iframe-api")) {
         const tag = document.createElement("script");
@@ -86,7 +85,11 @@ export default function Home() {
         tag.src = "https://www.youtube.com/iframe_api";
         document.body.appendChild(tag);
       }
-      (window as Window).onYouTubeIframeAPIReady = () => createPlayers();
+      w.onYouTubeIframeAPIReady = () => {
+        if (w.YT?.Player) {
+          createPlayers(w.YT);
+        }
+      };
     }
   }, [selected]);
 

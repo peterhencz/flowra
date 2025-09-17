@@ -13,7 +13,7 @@ declare global {
   }
 
   interface Window {
-    YT: {
+    YT?: {
       Player: new (
         elementId: string,
         options: {
