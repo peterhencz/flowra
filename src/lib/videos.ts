@@ -7,7 +7,7 @@ export const videoData: VideoCategory[] = [
   {
     name: "🌳",
     links: [
-      "https://www.youtube.com/watch?v=V4t526MJ9ac&ab_channel=DelhiteGurdeep",
+      "https://www.youtube.com/watch?v=Vg1mpD1BICI&ab_channel=NomadicAmbience",
     ],
   },
   {
@@ -19,7 +19,7 @@ export const videoData: VideoCategory[] = [
   {
     name: "🌴",
     links: [
-      "https://www.youtube.com/watch?v=Ptg0Icza6Fs&ab_channel=NatureRiver",
+      "https://www.youtube.com/watch?v=2wYtJwDkKIk&ab_channel=Fireplace4K",
     ],
   },
   {
