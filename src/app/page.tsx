@@ -168,10 +168,32 @@ export default function Home() {
   }, [muted, selected]);
 
   // Hangerő állítás csatornánként
+  // Hangerő állítás csatornánként – intelligens mute/unmute
   const handleVolume = (idx: number, value: number) => {
+    // UI azonnal kövesse a slider értékét
     setVolumes((v) => ({ ...v, [idx]: value }));
+
     const p = playersRef.current[idx];
-    if (isYTPlayer(p)) p.setVolume(value);
+    if (!isYTPlayer(p)) return;
+
+    if (value <= 0) {
+      // slider legalján: némítsuk a csatornát és rögzítsük 0-ra a hangerőt
+      p.setVolume(0);
+      p.mute();
+      setMuted((m) => ({ ...m, [idx]: true }));
+      return;
+    }
+
+    // ha eddig muted volt és most felhúztad: automatikus unmute + smooth fade 0 → value
+    if (p.isMuted() || muted[idx] === true) {
+      p.unMute();
+      setMuted((m) => ({ ...m, [idx]: false }));
+      // kis fade, hogy szépen jöjjön be a hang
+      tweenVolume(idx, 0, value, 180);
+    } else {
+      // normál eset: közvetlen hangerő állítás tekerés közben
+      p.setVolume(value);
+    }
   };
 
   // Globális Play
