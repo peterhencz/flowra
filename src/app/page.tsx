@@ -5,7 +5,7 @@ import { videoData } from "../lib/videos";
 import VolumeSlider from "./components/VolumeSlider";
 import styles from "./page.module.css";
 
-type YTPlayer = any;
+type SelectedItem = { idx: number; category: string; link: string; id: string };
 
 function getRandomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -19,39 +19,42 @@ function extractYouTubeId(url: string): string | null {
     const parts = u.pathname.split("/");
     const i = parts.indexOf("embed");
     if (i !== -1 && parts[i + 1]) return parts[i + 1];
-  } catch {}
+  } catch {
+    // ignore
+  }
   return null;
 }
 
 export default function Home() {
-  // minden kategóriából random link
-  const selected = useMemo(
-    () =>
-      videoData
-        .map((cat, i) => {
-          const link = getRandomItem(cat.links);
-          const id = extractYouTubeId(link);
-          return { idx: i, category: cat.name, link, id };
-        })
-        .filter((x) => !!x.id),
-    []
-  );
+  // minden kategóriából random link (csak érvényes videoId-k maradnak)
+  const selected: SelectedItem[] = useMemo(() => {
+    return videoData
+      .map((cat, i) => {
+        const link = getRandomItem(cat.links);
+        const id = extractYouTubeId(link);
+        return id
+          ? ({ idx: i, category: cat.name, link, id } as SelectedItem)
+          : null;
+      })
+      .filter((x): x is SelectedItem => x !== null);
+  }, []);
 
+  // YT playerek és állapotok
   const playersRef = useRef<Record<number, YTPlayer>>({});
   const [volumes, setVolumes] = useState<Record<number, number>>({});
   const [muted, setMuted] = useState<Record<number, boolean>>({});
   const [allMuted, setAllMuted] = useState(false);
 
-  // YouTube IFrame API + rejtett playerek
+  // YouTube IFrame API betöltése + rejtett playerek létrehozása
   useEffect(() => {
-    const w = window as any;
+    const w = window as Window;
 
     function createPlayers() {
       selected.forEach(({ idx, id }) => {
-        if (!id) return;
         const elId = `player-${idx}`;
         if (playersRef.current[idx]) return;
 
+        // @ts-expect-error: YT lehet, hogy még nincs definiálva a típus szerint ebben a pillanatban
         playersRef.current[idx] = new w.YT.Player(elId, {
           videoId: id,
           playerVars: {
@@ -61,10 +64,10 @@ export default function Home() {
           },
           events: {
             onReady: () => {
-              // kezdeti hangerő + némítás állapot beállítása
-              playersRef.current[idx]?.setVolume(50);
+              const p = playersRef.current[idx];
+              p.setVolume(50);
               setVolumes((v) => ({ ...v, [idx]: 50 }));
-              const isM = playersRef.current[idx]?.isMuted?.() ?? false;
+              const isM = p.isMuted();
               setMuted((m) => ({ ...m, [idx]: isM }));
             },
           },
@@ -72,7 +75,9 @@ export default function Home() {
       });
     }
 
-    if (w.YT && w.YT.Player) {
+    // Ha már betöltődött az API
+    // @ts-expect-error: YT dinamikusan kerül a window-ra
+    if ((w as any).YT && (w as any).YT.Player) {
       createPlayers();
     } else {
       if (!document.getElementById("yt-iframe-api")) {
@@ -81,67 +86,60 @@ export default function Home() {
         tag.src = "https://www.youtube.com/iframe_api";
         document.body.appendChild(tag);
       }
-      (window as any).onYouTubeIframeAPIReady = () => createPlayers();
+      (window as Window).onYouTubeIframeAPIReady = () => createPlayers();
     }
   }, [selected]);
 
+  // Hangerő állítás csatornánként
   const handleVolume = (idx: number, value: number) => {
     setVolumes((v) => ({ ...v, [idx]: value }));
     const p = playersRef.current[idx];
-    if (p?.setVolume) p.setVolume(value);
+    if (p) p.setVolume(value);
   };
 
+  // Globális Play
   const playAll = () => {
-    Object.values(playersRef.current).forEach((p) => p?.playVideo?.());
+    Object.values(playersRef.current).forEach((p) => p.playVideo());
   };
 
+  // Globális Mute/Unmute (szinkronizálja a lokális mute state-et is)
   const toggleMuteAll = () => {
     if (allMuted) {
-      // UNMUTE ALL
-      Object.values(playersRef.current).forEach((p) => p?.unMute?.());
+      Object.values(playersRef.current).forEach((p) => p.unMute());
       setAllMuted(false);
       setMuted((m) => {
         const next = { ...m };
-        Object.keys(playersRef.current).forEach((key) => {
-          next[Number(key)] = false;
-        });
+        selected.forEach(({ idx }) => (next[idx] = false));
         return next;
       });
     } else {
-      // MUTE ALL
-      Object.values(playersRef.current).forEach((p) => p?.mute?.());
+      Object.values(playersRef.current).forEach((p) => p.mute());
       setAllMuted(true);
       setMuted((m) => {
         const next = { ...m };
-        Object.keys(playersRef.current).forEach((key) => {
-          next[Number(key)] = true;
-        });
+        selected.forEach(({ idx }) => (next[idx] = true));
         return next;
       });
     }
   };
 
+  // Lokális (csatorna) Mute/Unmute
   const toggleChannelMute = (idx: number) => {
     const player = playersRef.current[idx];
     if (!player) return;
 
-    const isM = player?.isMuted?.() ?? muted[idx] ?? false;
+    const isM = player.isMuted();
     if (isM) {
-      player?.unMute?.();
+      player.unMute();
     } else {
-      player?.mute?.();
+      player.mute();
     }
 
     setMuted((m) => {
       const next = { ...m, [idx]: !isM };
-      // szinkronizáljuk a "Mute All" állapotot is
-      const total = Object.keys(playersRef.current).length;
-      if (total > 0) {
-        const allNowMuted = Array.from({ length: total }).every(
-          (_, i) => next[i] === true
-        );
-        setAllMuted(allNowMuted);
-      }
+      // Frissítsük a globális allMuted állapotot is a jelenlegi csatornák alapján
+      const allNowMuted = selected.every(({ idx: i }) => next[i] === true);
+      setAllMuted(allNowMuted);
       return next;
     });
   };
@@ -186,7 +184,7 @@ export default function Home() {
               {muted[idx] ? "🔊" : "🔇"}
             </button>
 
-            {/* Láthatatlan YouTube player */}
+            {/* Láthatatlan YouTube player konténer */}
             <div
               id={`player-${idx}`}
               aria-hidden="true"
