@@ -9,7 +9,6 @@ import PlayIcon from "./components/icons-react/Play";
 import SoundOnIcon from "./components/icons-react/SoundOn";
 import SoundOffIcon from "./components/icons-react/SoundOff";
 import RandomIcon from "./components/icons-react/Random";
-import { useEffect, useState } from "react";
 
 /* ---------- típusok ---------- */
 type SelectedItem = { idx: number; category: string; link: string; id: string };
