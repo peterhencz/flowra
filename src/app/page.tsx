@@ -9,6 +9,7 @@ import PlayIcon from "./components/icons-react/Play";
 import SoundOnIcon from "./components/icons-react/SoundOn";
 import SoundOffIcon from "./components/icons-react/SoundOff";
 import RandomIcon from "./components/icons-react/Random";
+import { useEffect, useState } from "react";
 
 /* ---------- típusok ---------- */
 type SelectedItem = { idx: number; category: string; link: string; id: string };
@@ -58,6 +59,8 @@ export default function Home() {
   const [allMuted, setAllMuted] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
   const channelSnapshots = useRef<Record<number, number>>({});
 
   const rafRef = useRef<Record<number, number>>({});
@@ -97,6 +100,14 @@ export default function Home() {
     };
     rafRef.current[idx] = requestAnimationFrame(run);
   };
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     const w: Window = window;
@@ -304,6 +315,20 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+      {isMobile === true && (
+        <div className={styles.mobileOverlay}>
+          <div className={styles.mobileCard}>
+            <h2 className={styles.mobileTitle}>flowra</h2>
+            <p className={styles.mobileText}>
+              This experience is currently available on desktop only.
+            </p>
+            <p className={styles.mobileSub}>
+              Please visit on a larger screen to mix the layers.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className={styles.titleContainer}>
         <h1 className={`${styles.title} modak-regular`}>flowra</h1>
       </div>
