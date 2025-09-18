@@ -314,10 +314,11 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      {isMobile === true && (
+      {/* ha mobil → csak a mobil overlay renderelődik */}
+      {isMobile === true ? (
         <div className={styles.mobileOverlay}>
           <div className={styles.mobileCard}>
-            <h2 className={styles.mobileTitle}>flowra</h2>
+            <h2 className={`${styles.title} modak-regular`}>flowra</h2>
             <p className={styles.mobileText}>
               This experience is currently available on desktop only.
             </p>
@@ -326,70 +327,75 @@ export default function Home() {
             </p>
           </div>
         </div>
+      ) : (
+        <>
+          {/* desktop UI */}
+          <div className={styles.titleContainer}>
+            <h1 className={`${styles.title} modak-regular`}>flowra</h1>
+          </div>
+
+          <div className={styles.box}>
+            {/* OVERLAY: csak amíg nincs start */}
+            <div
+              className={`${styles.overlay} ${
+                hasStarted ? styles.overlayHidden : ""
+              }`}
+              aria-hidden={hasStarted}
+            >
+              <button
+                className={styles.overlayButton}
+                onClick={playAll}
+                aria-label="Start"
+              >
+                <PlayIcon className={styles.overlayIcon} />
+              </button>
+            </div>
+
+            {/* felső kontrollsor */}
+            <div className={styles.controls}>
+              <button
+                onClick={toggleMuteAll}
+                className={`${styles.button} ${
+                  allMuted ? styles.unmute : styles.mute
+                }`}
+                title={
+                  allMuted
+                    ? "Restore previous state"
+                    : "Mute all (snapshot & fade)"
+                }
+              >
+                {allMuted ? (
+                  <SoundOnIcon className={styles.iconSound} />
+                ) : (
+                  <SoundOffIcon className={styles.iconSound} />
+                )}
+              </button>
+
+              <button
+                onClick={randomizeAll}
+                className={`${styles.button} ${styles.random}`}
+                title="Randomize volumes & mute states"
+              >
+                <RandomIcon className={styles.icon} />
+              </button>
+            </div>
+
+            <div className={styles.slidersRow}>
+              {selected.map(({ idx, category }) => (
+                <ChannelStrip
+                  key={idx}
+                  idx={idx}
+                  category={category}
+                  volume={volumes[idx] ?? 50}
+                  muted={muted[idx] ?? false}
+                  onVolumeChange={handleVolume}
+                  onToggleMute={toggleChannelMute}
+                />
+              ))}
+            </div>
+          </div>
+        </>
       )}
-
-      <div className={styles.titleContainer}>
-        <h1 className={`${styles.title} modak-regular`}>flowra</h1>
-      </div>
-
-      <div className={styles.box}>
-        {/* OVERLAY: csak amíg nincs start */}
-        <div
-          className={`${styles.overlay} ${
-            hasStarted ? styles.overlayHidden : ""
-          }`}
-          aria-hidden={hasStarted}
-        >
-          <button
-            className={styles.overlayButton}
-            onClick={playAll}
-            aria-label="Start"
-          >
-            <PlayIcon className={styles.overlayIcon} />
-          </button>
-        </div>
-
-        {/* felső kontrollsor – Play már NINCS itt */}
-        <div className={styles.controls}>
-          <button
-            onClick={toggleMuteAll}
-            className={`${styles.button} ${
-              allMuted ? styles.unmute : styles.mute
-            }`}
-            title={
-              allMuted ? "Restore previous state" : "Mute all (snapshot & fade)"
-            }
-          >
-            {allMuted ? (
-              <SoundOnIcon className={styles.iconSound} />
-            ) : (
-              <SoundOffIcon className={styles.iconSound} />
-            )}
-          </button>
-
-          <button
-            onClick={randomizeAll}
-            className={`${styles.button} ${styles.random}`}
-            title="Randomize volumes & mute states"
-          >
-            <RandomIcon className={styles.icon} />
-          </button>
-        </div>
-
-        <div className={styles.slidersRow}>
-          {selected.map(({ idx, category }) => (
-            <ChannelStrip
-              key={idx}
-              idx={idx}
-              category={category}
-              volume={volumes[idx] ?? 50}
-              muted={muted[idx] ?? false}
-              onVolumeChange={handleVolume}
-              onToggleMute={toggleChannelMute}
-            />
-          ))}
-        </div>
-      </div>
     </main>
   );
 }
