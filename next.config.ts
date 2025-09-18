@@ -1,20 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/, // csak tsx/jsx-ből importálható
-      use: [
-        {
-          loader: "@svgr/webpack",
-          options: {
-            icon: true,
-          },
-        },
-      ],
-    });
-    return config;
-  },
+  // nincs webpack override, mert az ikonok már TSX komponensek
 };
 
 module.exports = nextConfig;
