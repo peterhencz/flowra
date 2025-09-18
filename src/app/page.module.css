@@ -88,6 +88,20 @@
   transition: stroke 0.2s ease;
 }
 
+.iconInfo {
+  width: 36px;
+  height: 36px;
+  fill: #9f94be;
+  transition: stroke 0.2s ease;
+}
+
+.iconClose {
+  width: 24px;
+  height: 24px;
+  fill: #9f94be;
+  transition: stroke 0.2s ease;
+}
+
 .iconChannelStrip {
   width: 20px;
   height: 20px;
@@ -96,7 +110,8 @@
   transition: stroke 0.2s ease;
 }
 
-.icon:hover {
+.icon:hover,
+.iconInfo:hover {
   fill: #796899;
 }
 
@@ -275,13 +290,10 @@
   left: 0;
   right: 0;
   background: #ffffff;
-  border-top: 1px solid #d7d3e6;
-  padding: 16px 48px 24px 24px;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12);
+  padding: 32px;
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.12);
   animation: slideUp 0.3s ease forwards;
   z-index: 1001;
-  font-size: 14px;
-  color: #5b5670;
   line-height: 1.5;
 }
 
@@ -315,30 +327,6 @@
 /* ha nyitva az infó, adjunk helyet alul, hogy ne takarjon ki mindent (opcionális) */
 .boxWithInfoSpace {
   padding-bottom: 120px;
-}
-
-/* lebegő "i" gomb a doboz jobb-alsó sarkában */
-.infoInBoxBtn {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  background: #bfb9d6;
-  color: #4f4a63;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-  transition: background 0.2s ease, transform 0.15s ease;
-  z-index: 5; /* a panel alá mehet, ha szeretnéd, hagyd 5-ön */
-}
-.infoInBoxBtn:hover {
-  background: #b0a9ca;
-}
-.infoInBoxBtn:active {
-  transform: scale(0.96);
 }
 
 /* az infó panel a doboz alján */

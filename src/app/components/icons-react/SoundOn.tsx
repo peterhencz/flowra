@@ -12,6 +12,7 @@ const SvgSoundOn = (props: SVGProps<SVGSVGElement>) => (
     <g
       fill="none"
       fillRule="evenodd"
+      stroke="#222F3E"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={4}

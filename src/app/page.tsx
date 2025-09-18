@@ -10,6 +10,7 @@ import SoundOnIcon from "./components/icons-react/SoundOn";
 import SoundOffIcon from "./components/icons-react/SoundOff";
 import RandomIcon from "./components/icons-react/Random";
 import InfoIcon from "./components/icons-react/Info";
+import IconClose from "./components/icons-react/Close";
 
 /* ---------- típusok ---------- */
 type SelectedItem = { idx: number; category: string; link: string; id: string };
@@ -399,7 +400,7 @@ export default function Home() {
             className={styles.infoButton}
             onClick={() => setInfoOpen(true)}
           >
-            <InfoIcon className={styles.iconSound} />
+            <InfoIcon className={styles.iconInfo} />
           </button>
           {infoOpen && (
             <div className={styles.infoBox}>
@@ -407,7 +408,7 @@ export default function Home() {
                 className={styles.closeButton}
                 onClick={() => setInfoOpen(false)}
               >
-                X
+                <IconClose className={styles.iconClose} />
               </button>
               <p className={styles.infoText}>
                 In <strong>flowra</strong>, you shape atmospheres with small
