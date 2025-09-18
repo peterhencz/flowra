@@ -5,39 +5,45 @@ export type VideoCategory = {
 
 export const videoData: VideoCategory[] = [
   {
-    name: "🌳",
+    name: "🌊",
     links: [
-      "https://www.youtube.com/watch?v=Vg1mpD1BICI&ab_channel=NomadicAmbience",
+      "https://www.youtube.com/watch?v=-THE-zblZ9o&ab_channel=CalmedByNature",
     ],
   },
   {
     name: "🪼",
     links: [
-      "https://www.youtube.com/watch?v=nZUMdnky11E&t=6821s&ab_channel=NatureSoundscapes",
+      "https://www.youtube.com/watch?v=XDLQWASvK0s&t=8913s&ab_channel=BackgroundCompany",
     ],
   },
   {
     name: "🌴",
     links: [
-      "https://www.youtube.com/watch?v=2wYtJwDkKIk&ab_channel=Fireplace4K",
+      "https://www.youtube.com/watch?v=7kLzyZ9gBa0&ab_channel=NatureSoundscapes",
     ],
   },
   {
     name: "🌦️",
     links: [
-      "https://www.youtube.com/watch?v=XDLQWASvK0s&ab_channel=BackgroundCompany",
+      "https://www.youtube.com/watch?v=mPZkdNFkNps&ab_channel=RelaxingAmbienceASMR",
     ],
   },
   {
-    name: "🌦️",
+    name: "🏙️",
     links: [
-      "https://www.youtube.com/watch?v=_hEN8q2g9qQ&ab_channel=NatureSoundscapes",
+      "https://www.youtube.com/watch?v=Vg1mpD1BICI&t=319s&ab_channel=NomadicAmbience",
     ],
   },
   {
-    name: "🎶",
+    name: "🔥",
     links: [
-      "https://www.youtube.com/watch?v=nVuV04EUPdM&t=88s&ab_channel=RainWhisperStudio",
+      "https://www.youtube.com/watch?v=kmythL1LppA&ab_channel=Forestofwing",
+    ],
+  },
+  {
+    name: "🪷",
+    links: [
+      "https://www.youtube.com/watch?v=V4t526MJ9ac&t=3031s&ab_channel=DelhiteGurdeep",
     ],
   },
 ];

@@ -3,13 +3,16 @@
 import VolumeSlider from "./VolumeSlider";
 import styles from "@/app/page.module.css";
 
+import SoundOnIcon from "./icons-react/SoundOn";
+import SoundOffIcon from "./icons-react/SoundOff";
+
 export type ChannelStripProps = {
   idx: number;
   category: string;
   volume: number;
   muted: boolean;
   onVolumeChange: (idx: number, v: number) => void;
-  onToggleMute: (idx: number) => void;
+  onToggleMute: (idx: number) => void; // parent kezeli a snapshotot is
 };
 
 export default function ChannelStrip({
@@ -29,10 +32,14 @@ export default function ChannelStrip({
       <button
         onClick={() => onToggleMute(idx)}
         className={styles.smallButton}
-        aria-label={muted ? "Unmute channel" : "Mute channel"}
-        title={muted ? "Unmute" : "Mute"}
+        aria-label={muted ? "Restore channel volume" : "Mute channel"}
+        title={muted ? "Restore previous volume" : "Mute"}
       >
-        {muted ? "🔊" : "🔇"}
+        {muted ? (
+          <SoundOnIcon className={styles.iconChannelStrip} />
+        ) : (
+          <SoundOffIcon className={styles.iconChannelStrip} />
+        )}
       </button>
 
       {/* Hidden YT host */}

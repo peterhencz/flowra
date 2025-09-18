@@ -2,12 +2,18 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { videoData } from "../lib/videos";
-import { getInitialChannelState } from "../lib/init-state";
 import ChannelStrip from "./components/ChannelStrip";
+import { getInitialChannelState } from "../lib/init-state";
 import styles from "./page.module.css";
+import PlayIcon from "./components/icons-react/Play";
+import SoundOnIcon from "./components/icons-react/SoundOn";
+import SoundOffIcon from "./components/icons-react/SoundOff";
+import RandomIcon from "./components/icons-react/Random";
 
+/* ---------- típusok ---------- */
 type SelectedItem = { idx: number; category: string; link: string; id: string };
 
+/* ---------- utilok ---------- */
 function getRandomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -24,19 +30,16 @@ function extractYouTubeId(url: string): string | null {
     return null;
   }
 }
-
-/* ---------- smooth volume tween ---------- */
 function easeInOutQuad(t: number) {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
 
-/* ---------- YT guard + helpers ---------- */
+/* ---------- YT guard ---------- */
 function isYTPlayer(obj: unknown): obj is YTPlayer {
   return !!obj && typeof (obj as YTPlayer).playVideo === "function";
 }
 
 export default function Home() {
-  // minden kategóriából random link (csak érvényes videoId-k maradnak)
   const selected: SelectedItem[] = useMemo(() => {
     return videoData
       .map((cat, i) => {
@@ -49,12 +52,19 @@ export default function Home() {
       .filter((x): x is SelectedItem => x !== null);
   }, []);
 
-  // YT playerek és állapotok
   const playersRef = useRef<Partial<Record<number, YTPlayer>>>({});
   const [volumes, setVolumes] = useState<Record<number, number>>({});
   const [muted, setMuted] = useState<Record<number, boolean>>({});
   const [allMuted, setAllMuted] = useState(false);
-  const rafRef = useRef<Record<number, number>>({}); // volume animációk
+  const [hasStarted, setHasStarted] = useState(false);
+
+  const channelSnapshots = useRef<Record<number, number>>({});
+
+  const rafRef = useRef<Record<number, number>>({});
+  const preMuteSnapshotRef = useRef<{
+    volumes: Record<number, number>;
+    muted: Record<number, boolean>;
+  } | null>(null);
 
   const getAllPlayers = () =>
     Object.values(playersRef.current).filter(isYTPlayer);
@@ -88,7 +98,6 @@ export default function Home() {
     rafRef.current[idx] = requestAnimationFrame(run);
   };
 
-  // YouTube IFrame API betöltése + rejtett playerek létrehozása
   useEffect(() => {
     const w: Window = window;
 
@@ -107,7 +116,7 @@ export default function Home() {
           events: {
             onReady: () => {
               const p = playersRef.current[idx];
-              // baseline: 50, unmuted
+
               setVolumes((v) => ({ ...v, [idx]: 50 }));
               setMuted((m) => ({ ...m, [idx]: false }));
               if (isYTPlayer(p)) {
@@ -115,7 +124,6 @@ export default function Home() {
                 p.setVolume(50);
               }
 
-              // véletlen kezdet
               const init = getInitialChannelState(idx, {
                 volumeMin: 10,
                 volumeMax: 90,
@@ -159,7 +167,6 @@ export default function Home() {
     };
   }, [selected]);
 
-  // allMuted derive-olása a per-channel állapotból
   useEffect(() => {
     if (selected.length > 0) {
       const allNowMuted = selected.every(({ idx }) => muted[idx] === true);
@@ -167,94 +174,105 @@ export default function Home() {
     }
   }, [muted, selected]);
 
-  // Hangerő állítás csatornánként
-  // Hangerő állítás csatornánként – intelligens mute/unmute
-  const handleVolume = (idx: number, value: number) => {
-    // UI azonnal kövesse a slider értékét
-    setVolumes((v) => ({ ...v, [idx]: value }));
+  const playAll = () => {
+    getAllPlayers().forEach((p, k) => setTimeout(() => p.playVideo(), k * 80));
+    setHasStarted(true);
+  };
 
+  const handleVolume = (idx: number, value: number) => {
+    setVolumes((v) => ({ ...v, [idx]: value }));
     const p = playersRef.current[idx];
     if (!isYTPlayer(p)) return;
 
     if (value <= 0) {
-      // slider legalján: némítsuk a csatornát és rögzítsük 0-ra a hangerőt
       p.setVolume(0);
       p.mute();
       setMuted((m) => ({ ...m, [idx]: true }));
       return;
     }
 
-    // ha eddig muted volt és most felhúztad: automatikus unmute + smooth fade 0 → value
     if (p.isMuted() || muted[idx] === true) {
       p.unMute();
       setMuted((m) => ({ ...m, [idx]: false }));
-      // kis fade, hogy szépen jöjjön be a hang
       tweenVolume(idx, 0, value, 180);
     } else {
-      // normál eset: közvetlen hangerő állítás tekerés közben
       p.setVolume(value);
     }
   };
 
-  // Globális Play
-  const playAll = () => {
-    getAllPlayers().forEach((p) => p.playVideo());
-  };
-
-  // Globális Mute/Unmute – smooth
-  const toggleMuteAll = () => {
-    if (allMuted) {
-      // unmute all
-      selected.forEach(({ idx }) => {
-        const p = playersRef.current[idx];
-        if (!isYTPlayer(p)) return;
-        p.unMute();
-        const target = volumes[idx] ?? 50;
-        tweenVolume(idx, 0, target, 250);
-      });
-      setMuted((m) => {
-        const next = { ...m };
-        selected.forEach(({ idx }) => (next[idx] = false));
-        return next;
-      });
-    } else {
-      // mute all
-      selected.forEach(({ idx }) => {
-        const p = playersRef.current[idx];
-        if (!isYTPlayer(p)) return;
-        const from = volumes[idx] ?? 50;
-        tweenVolume(idx, from, 0, 200);
-        setTimeout(() => p.mute(), 220);
-      });
-      setMuted((m) => {
-        const next = { ...m };
-        selected.forEach(({ idx }) => (next[idx] = true));
-        return next;
-      });
-    }
-  };
-
-  // Lokális (csatorna) Mute/Unmute – smooth
   const toggleChannelMute = (idx: number) => {
     const p = playersRef.current[idx];
     if (!isYTPlayer(p)) return;
 
     const isM = p.isMuted() || muted[idx] === true;
 
-    if (isM) {
-      p.unMute();
-      const target = volumes[idx] ?? 50;
-      tweenVolume(idx, 0, target, 200);
-      setMuted((m) => ({ ...m, [idx]: false }));
-    } else {
+    if (!isM) {
+      // most megy mute-ra → mentsük el a jelenlegi volume-ot
+      channelSnapshots.current[idx] = volumes[idx] ?? 50;
       const from = volumes[idx] ?? 50;
       tweenVolume(idx, from, 0, 180);
       setTimeout(() => p.mute(), 190);
       setMuted((m) => ({ ...m, [idx]: true }));
+    } else {
+      // restore
+      const restoreVol = channelSnapshots.current[idx] ?? 50;
+      p.unMute();
+      tweenVolume(idx, 0, restoreVol, 200);
+      setMuted((m) => ({ ...m, [idx]: false }));
+      setVolumes((v) => ({ ...v, [idx]: restoreVol }));
     }
   };
 
-  // Globális RANDOM – smooth
+  const toggleMuteAll = () => {
+    if (!allMuted) {
+      preMuteSnapshotRef.current = {
+        volumes: { ...volumes },
+        muted: { ...muted },
+      };
+
+      selected.forEach(({ idx }) => {
+        const p = playersRef.current[idx];
+        const from = volumes[idx] ?? 50;
+        tweenVolume(idx, from, 0, 220);
+        if (isYTPlayer(p)) setTimeout(() => p.mute(), 230);
+      });
+      setMuted((m) => {
+        const next = { ...m };
+        selected.forEach(({ idx }) => (next[idx] = true));
+        return next;
+      });
+    } else {
+      const snap = preMuteSnapshotRef.current;
+
+      selected.forEach(({ idx }) => {
+        const p = playersRef.current[idx];
+        const targetVol = snap?.volumes[idx] ?? volumes[idx] ?? 50;
+        const targetMuted = snap?.muted[idx] ?? false;
+
+        if (targetMuted) {
+          setVolumes((v) => ({ ...v, [idx]: targetVol }));
+          if (isYTPlayer(p)) {
+            p.setVolume(0);
+            p.mute();
+          }
+        } else {
+          if (isYTPlayer(p)) p.unMute();
+          tweenVolume(idx, 0, targetVol, 260);
+        }
+      });
+
+      setMuted(() => {
+        const next: Record<number, boolean> = {};
+        selected.forEach(({ idx }) => {
+          next[idx] = snap?.muted[idx] ?? false;
+        });
+        return next;
+      });
+
+      preMuteSnapshotRef.current = null;
+    }
+  };
+
   const randomizeAll = () => {
     selected.forEach(({ idx }) => {
       const p = playersRef.current[idx];
@@ -265,7 +283,6 @@ export default function Home() {
         volumeMax: 90,
         muteProb: 0.5,
       });
-
       const currentlyMuted = p.isMuted() || muted[idx] === true;
       const from = currentlyMuted ? 0 : volumes[idx] ?? 50;
 
@@ -287,41 +304,67 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <h1 className={styles.title}>Hello World</h1>
-
-      <div className={styles.controls}>
-        <button onClick={playAll} className={`${styles.button} ${styles.play}`}>
-          ▶ Play All
-        </button>
-        <button
-          onClick={toggleMuteAll}
-          className={`${styles.button} ${
-            allMuted ? styles.unmute : styles.mute
-          }`}
-        >
-          {allMuted ? "🔊 Unmute All" : "🔇 Mute All"}
-        </button>
-        <button
-          onClick={randomizeAll}
-          className={`${styles.button} ${styles.random}`}
-          title="Randomize volumes & mute states"
-        >
-          🎲 Randomize
-        </button>
+      <div className={styles.titleContainer}>
+        <h1 className={`${styles.title} modak-regular`}>flowra</h1>
       </div>
 
-      <div className={styles.slidersRow}>
-        {selected.map(({ idx, category }) => (
-          <ChannelStrip
-            key={idx}
-            idx={idx}
-            category={category}
-            volume={volumes[idx] ?? 50}
-            muted={muted[idx] ?? false}
-            onVolumeChange={handleVolume}
-            onToggleMute={toggleChannelMute}
-          />
-        ))}
+      <div className={styles.box}>
+        {/* OVERLAY: csak amíg nincs start */}
+        <div
+          className={`${styles.overlay} ${
+            hasStarted ? styles.overlayHidden : ""
+          }`}
+          aria-hidden={hasStarted}
+        >
+          <button
+            className={styles.overlayButton}
+            onClick={playAll}
+            aria-label="Start"
+          >
+            <PlayIcon className={styles.overlayIcon} />
+          </button>
+        </div>
+
+        {/* felső kontrollsor – Play már NINCS itt */}
+        <div className={styles.controls}>
+          <button
+            onClick={toggleMuteAll}
+            className={`${styles.button} ${
+              allMuted ? styles.unmute : styles.mute
+            }`}
+            title={
+              allMuted ? "Restore previous state" : "Mute all (snapshot & fade)"
+            }
+          >
+            {allMuted ? (
+              <SoundOnIcon className={styles.iconSound} />
+            ) : (
+              <SoundOffIcon className={styles.iconSound} />
+            )}
+          </button>
+
+          <button
+            onClick={randomizeAll}
+            className={`${styles.button} ${styles.random}`}
+            title="Randomize volumes & mute states"
+          >
+            <RandomIcon className={styles.icon} />
+          </button>
+        </div>
+
+        <div className={styles.slidersRow}>
+          {selected.map(({ idx, category }) => (
+            <ChannelStrip
+              key={idx}
+              idx={idx}
+              category={category}
+              volume={volumes[idx] ?? 50}
+              muted={muted[idx] ?? false}
+              onVolumeChange={handleVolume}
+              onToggleMute={toggleChannelMute}
+            />
+          ))}
+        </div>
       </div>
     </main>
   );

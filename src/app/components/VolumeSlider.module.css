@@ -13,10 +13,11 @@
 .sliderTrack {
   position: relative;
   height: 100%;
-  width: 6px;
-  background-color: #d9b9a7;
-  border-radius: 9999px;
+  width: 8px;
+  background-color: #e1deee;
+  border-radius: 10px;
   box-sizing: border-box;
+  box-shadow: 4px 4px 4px -2px rgba(0, 0, 0, 0.19) inset;
 }
 
 .sliderRange {
@@ -25,22 +26,23 @@
   right: 0;
   bottom: 0;
   width: 100%;
-  background-color: #3b2b25;
-  border-radius: inherit;
+  background-color: #fcfcfe;
+  border-radius: 10px;
   box-sizing: border-box;
   transform: translateZ(0);
 }
 
 .sliderThumb {
   display: block;
-  width: 14px;
-  height: 14px;
-  background-color: #3b2b25;
-  border-radius: 50%;
+  width: 8px;
+  height: 6px;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  background-color: transparent;
+
   cursor: grab;
   outline: none;
   will-change: transform;
 }
 .sliderThumb:focus {
-  box-shadow: 0 0 0 3px #ffd7c280;
 }
