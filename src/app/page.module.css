@@ -260,3 +260,133 @@
   font-size: 13px;
   color: #8a86a0;
 }
+
+.infoButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.infoBox {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-top: 1px solid #d7d3e6;
+  padding: 16px 48px 24px 24px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12);
+  animation: slideUp 0.3s ease forwards;
+  z-index: 1001;
+  font-size: 14px;
+  color: #5b5670;
+  line-height: 1.5;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* biztosítsuk, hogy a panel a dobozhoz legyen pozicionálva */
+.box {
+  position: relative;
+}
+
+/* ha nyitva az infó, adjunk helyet alul, hogy ne takarjon ki mindent (opcionális) */
+.boxWithInfoSpace {
+  padding-bottom: 120px;
+}
+
+/* lebegő "i" gomb a doboz jobb-alsó sarkában */
+.infoInBoxBtn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: #bfb9d6;
+  color: #4f4a63;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  transition: background 0.2s ease, transform 0.15s ease;
+  z-index: 5; /* a panel alá mehet, ha szeretnéd, hagyd 5-ön */
+}
+.infoInBoxBtn:hover {
+  background: #b0a9ca;
+}
+.infoInBoxBtn:active {
+  transform: scale(0.96);
+}
+
+/* az infó panel a doboz alján */
+.infoPanel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+
+  background: #ffffff;
+  border-top: 1px solid #d7d3e6;
+  padding: 14px 44px 16px 16px;
+  color: #5b5670;
+  font-size: 14px;
+  line-height: 1.5;
+
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 220ms ease, opacity 220ms ease;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+
+  z-index: 6; /* a gomb fölé csúszik nyitáskor */
+}
+.infoPanelOpen {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.infoClose {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  border: none;
+  background: transparent;
+  color: #8a86a0;
+  font-size: 16px;
+  cursor: pointer;
+}
+.infoClose:hover {
+  color: #353045;
+}
+
+.infoText {
+  color: #353045;
+  font-size: 16px;
+}

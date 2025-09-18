@@ -9,6 +9,7 @@ import PlayIcon from "./components/icons-react/Play";
 import SoundOnIcon from "./components/icons-react/SoundOn";
 import SoundOffIcon from "./components/icons-react/SoundOff";
 import RandomIcon from "./components/icons-react/Random";
+import InfoIcon from "./components/icons-react/Info";
 
 /* ---------- típusok ---------- */
 type SelectedItem = { idx: number; category: string; link: string; id: string };
@@ -59,7 +60,7 @@ export default function Home() {
   const [hasStarted, setHasStarted] = useState(false);
 
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
-
+  const [infoOpen, setInfoOpen] = useState(false);
   const channelSnapshots = useRef<Record<number, number>>({});
 
   const rafRef = useRef<Record<number, number>>({});
@@ -394,6 +395,30 @@ export default function Home() {
               ))}
             </div>
           </div>
+          <button
+            className={styles.infoButton}
+            onClick={() => setInfoOpen(true)}
+          >
+            <InfoIcon className={styles.iconSound} />
+          </button>
+          {infoOpen && (
+            <div className={styles.infoBox}>
+              <button
+                className={styles.closeButton}
+                onClick={() => setInfoOpen(false)}
+              >
+                X
+              </button>
+              <p className={styles.infoText}>
+                In <strong>flowra</strong>, you shape atmospheres with small
+                gestures. <br />
+                Raise a channel, mute another, or let randomness guide the
+                blend. <br />
+                The layers drift together into fragile harmonies — always
+                shifting, never repeating.
+              </p>
+            </div>
+          )}
         </>
       )}
     </main>
