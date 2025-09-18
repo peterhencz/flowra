@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "icons:build": "svgr --typescript --icon --expand-props end --svg-props 'fill=currentColor' --out-dir src/app/components/icons-react src/app/components/icons"
   },
   "dependencies": {
     "@radix-ui/react-slider": "^1.3.6",

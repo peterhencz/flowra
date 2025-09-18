@@ -1,15 +1,18 @@
 import * as React from "react";
-const SvgSoundOn = (props) => (
+import type { SVGProps } from "react";
+const SvgSoundOn = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
     height="1em"
     viewBox="0 0 100 100"
+    fill="currentColor"
     {...props}
   >
     <g
       fill="none"
       fillRule="evenodd"
+      stroke="#222F3E"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={4}
