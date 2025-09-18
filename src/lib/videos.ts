@@ -31,7 +31,7 @@ export const videoData: VideoCategory[] = [
   {
     name: "🏙️",
     links: [
-      "https://www.youtube.com/watch?v=Vg1mpD1BICI&t=319s&ab_channel=NomadicAmbience",
+      "https://www.youtube.com/watch?v=Z7uN2talyQE&ab_channel=SeoulStreetView",
     ],
   },
   {

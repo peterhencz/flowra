@@ -396,6 +396,7 @@ export default function Home() {
               ))}
             </div>
           </div>
+
           <button
             className={styles.infoButton}
             onClick={() => setInfoOpen(true)}
